@@ -1,0 +1,25 @@
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: restauracja/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mariadb
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  mariadb:
+    image: mariadb:11.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: zaq1@WSX
+      MYSQL_DATABASE: restauracja_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:

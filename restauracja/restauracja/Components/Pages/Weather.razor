@@ -1,0 +1,45 @@
+﻿@page "/weather"
+@attribute [StreamRendering]
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (dishes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var dish in dishes)
+            {
+                <tr>
+                    <td>@dish.Id</td>
+                    <td>@dish.Nazwa</td>
+                    <td>@dish.Cena</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Menu[]? dishes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+}

@@ -1,0 +1,27 @@
+﻿@page "/Db-test"
+@inject AppDbContext Db
+
+<h1>Database Test</h1>
+
+@if (dishes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var dish in dishes)
+        {
+            <li>@dish.Nazwa -- @dish.Cena</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Menu> dishes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        dishes = await Db.Menu.ToListAsync();
+    }
+}

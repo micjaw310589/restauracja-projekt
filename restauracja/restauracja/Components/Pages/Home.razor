@@ -1,0 +1,25 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+@inject AppDbContext Context
+
+<table>
+    <tr>
+        <th>Id</th>
+        <th>Nazwa</th>
+        <th>Cena [zł]</th>
+    </tr>
+    @foreach (Menu m in Context.Menu)
+    {
+        <tr>
+            <td>m.Id</td>
+            <td>m.Nazwa</td>
+            <td>m.Cena</td>
+        </tr>
+    }
+</table>
