@@ -5,6 +5,8 @@ namespace restauracja.Data
 {
     public class AppDbContext : DbContext
     {
+        public DbSet<Menu> Menu { get; set; }
+
         public AppDbContext(DbContextOptions options) : base(options)
         {
         }
@@ -12,7 +14,5 @@ namespace restauracja.Data
         protected AppDbContext()
         {
         }
-
-        public DbSet<Menu> Menu { get; set; }
     }
 }
