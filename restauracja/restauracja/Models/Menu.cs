@@ -1,4 +1,6 @@
-﻿namespace restauracja.Models
+﻿//using System.ComponentModel.DataAnnotations;
+
+namespace restauracja.Models
 {
     public class Menu
     {
