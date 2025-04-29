@@ -14,7 +14,7 @@ Welcome to your new app.
         <th>Nazwa</th>
         <th>Cena [zł]</th>
     </tr>
-    @foreach (Menu m in Context.Menu)
+    @foreach (var m in Context.Menu)
     {
         <tr>
             <td>m.DishId</td>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using restauracja.Data;
 
@@ -11,9 +12,11 @@ using restauracja.Data;
 namespace restauracja.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250429041545_Init5")]
+    partial class Init5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace restauracja.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
-            modelBuilder.Entity("OrderTable", b =>
-                {
-                    b.Property<int>("OrdersOrderId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TablesTableId")
-                        .HasColumnType("int");
-
-                    b.HasKey("OrdersOrderId", "TablesTableId");
-
-                    b.HasIndex("TablesTableId");
-
-                    b.ToTable("Zamowienia_Stoliki", (string)null);
-                });
 
             modelBuilder.Entity("ReservationTable", b =>
                 {
@@ -198,8 +186,6 @@ namespace restauracja.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Zamowienia");
                 });
 
@@ -307,42 +293,6 @@ namespace restauracja.Migrations
                     b.ToTable("Rezerwacje");
                 });
 
-            modelBuilder.Entity("restauracja.Models.Restaurant", b =>
-                {
-                    b.Property<int>("RestaurantId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id_lok");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("RestaurantId"));
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("adres");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("miasto");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("nazwa");
-
-                    b.Property<bool>("Open")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("czy_otwarty");
-
-                    b.HasKey("RestaurantId");
-
-                    b.ToTable("Lokale");
-                });
-
             modelBuilder.Entity("restauracja.Models.Role", b =>
                 {
                     b.Property<int>("RoleId")
@@ -386,8 +336,6 @@ namespace restauracja.Migrations
 
                     b.HasKey("TableId");
 
-                    b.HasIndex("RestaurantId");
-
                     b.ToTable("Stoliki");
                 });
 
@@ -413,11 +361,13 @@ namespace restauracja.Migrations
                         .HasColumnName("nazwisko");
 
                     b.Property<string>("Login")
+                        .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("varchar(15)")
                         .HasColumnName("login");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasMaxLength(15)
                         .HasColumnType("varchar(15)")
                         .HasColumnName("haslo");
@@ -436,26 +386,9 @@ namespace restauracja.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("RestaurantId");
-
                     b.HasIndex("RoleId");
 
                     b.ToTable("Uzytkownicy");
-                });
-
-            modelBuilder.Entity("OrderTable", b =>
-                {
-                    b.HasOne("restauracja.Models.Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("restauracja.Models.Table", null)
-                        .WithMany()
-                        .HasForeignKey("TablesTableId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("ReservationTable", b =>
@@ -508,19 +441,11 @@ namespace restauracja.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("restauracja.Models.User", "User")
-                        .WithMany("Orders")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("RegularCustomer");
 
                     b.Navigation("Reservation");
 
                     b.Navigation("Status");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("restauracja.Models.RegularClient", b =>
@@ -532,30 +457,13 @@ namespace restauracja.Migrations
                     b.Navigation("Discount");
                 });
 
-            modelBuilder.Entity("restauracja.Models.Table", b =>
-                {
-                    b.HasOne("restauracja.Models.Restaurant", "Restaurant")
-                        .WithMany("Tables")
-                        .HasForeignKey("RestaurantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Restaurant");
-                });
-
             modelBuilder.Entity("restauracja.Models.User", b =>
                 {
-                    b.HasOne("restauracja.Models.Restaurant", "Restaurant")
-                        .WithMany("Users")
-                        .HasForeignKey("RestaurantId");
-
                     b.HasOne("restauracja.Models.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Restaurant");
 
                     b.Navigation("Role");
                 });
@@ -590,21 +498,9 @@ namespace restauracja.Migrations
                     b.Navigation("Orders");
                 });
 
-            modelBuilder.Entity("restauracja.Models.Restaurant", b =>
-                {
-                    b.Navigation("Tables");
-
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("restauracja.Models.Role", b =>
                 {
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("restauracja.Models.User", b =>
-                {
-                    b.Navigation("Orders");
                 });
 #pragma warning restore 612, 618
         }
