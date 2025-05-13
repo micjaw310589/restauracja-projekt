@@ -11,7 +11,7 @@ using restauracja.Data;
 
 namespace restauracja.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(RestauracjaContext))]
     [Migration("20250429042103_Init6")]
     partial class Init6
     {

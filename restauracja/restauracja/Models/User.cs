@@ -9,16 +9,16 @@ namespace restauracja.Models
         [Column("id_u")]
         public int UserId { get; set; }
 
-        [Column("login"), MaxLength(15)]
+        [Column("login"), MaxLength(20)]
         public string? Login { get; set; } = null;
 
-        [Column("haslo"), MaxLength(15)]
+        [Column("haslo"), MaxLength(50)]
         public string? Password { get; set; } = null;
 
-        [Column("imie"), MaxLength(15)]
+        [Column("imie"), MaxLength(20)]
         public string FirstName { get; set; } = "";
 
-        [Column("nazwisko"), MaxLength(20)]
+        [Column("nazwisko"), MaxLength(30)]
         public string LastName { get; set; } = "";
 
         [Column("id_rola")]

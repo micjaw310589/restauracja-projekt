@@ -3,7 +3,7 @@ using restauracja.Models;
 
 namespace restauracja.Data
 {
-    public class AppDbContext : DbContext
+    public class RestauracjaContext : DbContext
     {
         public DbSet<Dish> Menu { get; set; }
         public DbSet<DishOrder> DishOrders { get; set; }
@@ -19,11 +19,11 @@ namespace restauracja.Data
 
 
 
-        public AppDbContext(DbContextOptions options) : base(options)
+        public RestauracjaContext(DbContextOptions options) : base(options)
         {
         }
 
-        protected AppDbContext()
+        protected RestauracjaContext()
         {
         }
 

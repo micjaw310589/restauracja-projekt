@@ -10,7 +10,7 @@ using restauracja.Data;
 
 namespace restauracja.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(RestauracjaContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -402,24 +402,24 @@ namespace restauracja.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("varchar(15)")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
                         .HasColumnName("imie");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)")
+                        .HasMaxLength(30)
+                        .HasColumnType("varchar(30)")
                         .HasColumnName("nazwisko");
 
                     b.Property<string>("Login")
-                        .HasMaxLength(15)
-                        .HasColumnType("varchar(15)")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
                         .HasColumnName("login");
 
                     b.Property<string>("Password")
-                        .HasMaxLength(15)
-                        .HasColumnType("varchar(15)")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
                         .HasColumnName("haslo");
 
                     b.Property<int?>("RestaurantId")
