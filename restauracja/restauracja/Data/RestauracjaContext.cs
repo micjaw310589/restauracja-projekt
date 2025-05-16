@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using restauracja.Models;
 
 namespace restauracja.Data
 {
-    public class RestauracjaContext : DbContext
+    public class RestauracjaContext : IdentityDbContext<User, Role, string>
     {
         public DbSet<Dish> Menu { get; set; }
         public DbSet<DishOrder> DishOrders { get; set; }
@@ -11,15 +12,14 @@ namespace restauracja.Data
         public DbSet<OrderStatus> OrderStatuses { get; set; }
         public DbSet<RegularClient> RegularCustomers { get; set; }
         public DbSet<Discount> Discounts { get; set; }
-        public DbSet<User> Users { get; set; }
-        public DbSet<Role> Roles { get; set; }
+        public override DbSet<User> Users { get; set; }
+        public override DbSet<Role> Roles { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Table> Tables { get; set; }
         public DbSet<Restaurant> Restaurants { get; set; }
 
 
-
-        public RestauracjaContext(DbContextOptions options) : base(options)
+        public RestauracjaContext(DbContextOptions<RestauracjaContext> options) : base(options)
         {
         }
 
@@ -29,6 +29,8 @@ namespace restauracja.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Dish>()
                 .HasKey(d => d.DishId);
 
@@ -75,13 +77,16 @@ namespace restauracja.Data
             modelBuilder.Entity<User>()
                 .HasKey(u => u.UserId);
 
-            modelBuilder.Entity<Role>()
-                .HasKey(r => r.RoleId);
+            //modelBuilder.Entity<Role>()
+            //    .HasKey(r => r.RoleId);
 
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Role)
-                .WithMany(r => r.Users)
-                .HasForeignKey(u => u.RoleId);
+            modelBuilder.Entity<Role>()
+                .HasKey(r => r.Id);
+
+            //modelBuilder.Entity<User>()
+            //    .HasOne(u => u.Role)
+            //    .WithMany(r => r.Users)
+            //    .HasForeignKey(u => u.RoleId);
 
             modelBuilder.Entity<Reservation>()
                 .HasKey(r => r.ReservationId);

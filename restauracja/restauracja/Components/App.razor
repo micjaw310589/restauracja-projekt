@@ -12,9 +12,13 @@
     <HeadOutlet />
 </head>
 
-<body>
-    <Routes />
-    <script src="_framework/blazor.web.js"></script>
-</body>
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(App).Assembly">
+        <body>
+            <Routes />
+            <script src="_framework/blazor.web.js"></script>
+        </body>
+    </Router>
+</CascadingAuthenticationState>
 
 </html>

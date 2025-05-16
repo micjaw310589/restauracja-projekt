@@ -10,7 +10,8 @@ namespace restauracja.Models
         public int OrderId { get; set; }
 
         [Column("id_u")]
-        public int UserId { get; set; }
+        //public int UserId { get; set; }
+        public string UserId { get; set; } = "";
         public User? User { get; set; } = null;
 
         [Column("id_rez")]
