@@ -1,5 +1,6 @@
-using restauracja.Components;
+﻿using restauracja.Components;
 using restauracja.Data;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 //using Pomelo.EntityFrameworkCore.MySql;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection"),
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
     ));
+builder.Services.AddScoped<ProtectedSessionStorage>();
+builder.Services.AddScoped<CartService>();
 
 var app = builder.Build();
 

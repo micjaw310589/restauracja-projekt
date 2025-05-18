@@ -1,0 +1,71 @@
+﻿@page "/Cart"
+@inject NavigationManager NavigationManager
+@inject AppDbContext Context
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Menu</PageTitle>
+<div class="cart">
+    <button class="button" @onclick="GoToCart">Koszyk (<span>@cart.Count</span>) - <span>@cart.Sum(item => item.Price) zł</span></button>
+</div>
+<h1>Menu Restauracji</h1>
+
+<table>
+    <tr>
+        <th>Id</th>
+        <th>Nazwa</th>
+        <th>Cena [zł]</th>
+        <th></th>
+    </tr>
+    @foreach (var m in Context.Menu)
+    {
+        <tr>
+            <td>@m.DishId</td>
+            <td>@m.Name</td>
+            <td>@m.Price</td>
+            <td><button class="button" @onclick="@(() => AddToCart(m.DishId))">Dodaj do koszyka</button></td>
+        </tr>
+    }
+</table>
+
+@code {
+    public List<Models.Dish> cart = new List<Models.Dish>();
+
+    async Task AddToCart(int id)
+    {
+        var item = Context.Menu.FirstOrDefault(m => m.DishId == id);
+        if (item != null)
+        {
+            var quantityStr = await JSRuntime.InvokeAsync<string>("prompt", "Ile porcji chcesz dodać?", "1");
+            if (int.TryParse(quantityStr, out int qty) && qty > 0)
+            {
+                for (int i = 0; i < qty; i++)
+                {
+                    cart.Add(new Models.Dish { DishId = item.DishId, Name = item.Name, Price = item.Price });
+                }
+                StateHasChanged();
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Proszę wprowadzić prawidłową ilość.");
+            }
+        }
+    }
+
+    async Task GoToCart()
+    {
+        if (cart != null && cart.Count > 0)
+        {
+            bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Czy na pewno chcesz przejść do koszyka?");
+            if (confirmed)
+            {
+                NavigationManager.NavigateTo("/koszyk");
+            }
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Twój koszyk jest pusty.");
+        }
+    }
+}
+
+
