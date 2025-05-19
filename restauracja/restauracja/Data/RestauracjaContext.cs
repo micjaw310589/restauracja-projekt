@@ -75,7 +75,7 @@ namespace restauracja.Data
                 .HasKey(d => d.DiscountId);
 
             modelBuilder.Entity<User>()
-                .HasKey(u => u.UserId);
+                .HasKey(u => u.Id);
 
             //modelBuilder.Entity<Role>()
             //    .HasKey(r => r.RoleId);

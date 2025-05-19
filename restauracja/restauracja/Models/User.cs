@@ -8,15 +8,15 @@ namespace restauracja.Models
     [Table("Uzytkownicy")]
     public class User : IdentityUser
     {
-        [Column("id_u")]
-        //public int UserId { get; set; }
-        public string UserId { get; set; } = "";
+        //[Column("id_u")]
+        ////public int UserId { get; set; }
+        //public string UserId { get; set; } = "";
 
-        [Column("login"), MaxLength(20)]
-        public string Login { get; set; } = "";
+        //[Column("login"), MaxLength(20)]
+        //public string Login { get; set; } = "";
 
-        [Column("haslo"), MaxLength(50)]
-        public string Password { get; set; } = "";
+        //[Column("haslo"), MaxLength(50)]
+        //public string Password { get; set; } = "";
 
         [Column("imie"), MaxLength(20)]
         public string FirstName { get; set; } = "";

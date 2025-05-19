@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using restauracja.Data;
 
@@ -11,9 +12,11 @@ using restauracja.Data;
 namespace restauracja.Migrations
 {
     [DbContext(typeof(RestauracjaContext))]
-    partial class RestauracjaContextModelSnapshot : ModelSnapshot
+    [Migration("20250517213711_UserAdjustment_PrimaryKeys")]
+    partial class UserAdjustment_PrimaryKeys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
