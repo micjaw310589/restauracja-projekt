@@ -1,0 +1,36 @@
+﻿@page "/PendingOrders"
+
+<PageTitle>Zamówienia</PageTitle>
+
+<h1>Oczekujące do wydania:</h1>
+
+
+
+@inject AppDbContext Context
+@using Microsoft.EntityFrameworkCore
+
+@code {
+    private List<Order> pendingOrders = new List<Order>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        pendingOrders = await Context.Orders
+            .Where(o => o.StatusId == 0)
+            .ToListAsync();
+    }
+}
+<table>
+    <tr>
+        <th>Lp.</th>
+        <th>Nazwa</th>
+        <th>Cena [zł]</th>
+    </tr>
+    @foreach (var m in pendingOrders) 
+    {
+        <tr>
+            <td>m.OrderId</td>
+            <td>m.Name</td>
+            <td>m.Price</td>
+        </tr>
+    }
+</table>

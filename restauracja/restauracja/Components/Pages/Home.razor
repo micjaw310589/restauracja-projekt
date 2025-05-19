@@ -1,25 +1,101 @@
 ﻿@page "/"
-
-<PageTitle>Home</PageTitle>
-
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
+@inject NavigationManager NavigationManager
 @inject AppDbContext Context
+@inject CartService CartService
+
+<PageTitle>Menu</PageTitle>
+<div class="cart">
+    <button class="button" @onclick="GoToCart">
+        Koszyk (<span>@CartService.Cart.Count</span>) - <span>@CartService.Cart.Sum(item => item.Price) zł</span>
+    </button>
+</div>
+<h1>Menu Restauracji</h1>
+
+@if (showQuantityInput)
+{
+    <div class="quantity-dialog">
+        <div>
+            <label>Ile porcji chcesz dodać?</label>
+            <input type="number" min="1" @bind="quantityInput" />
+        </div>
+        <div>
+            <button class="button" @onclick="ConfirmQuantity">OK</button>
+            <button class="button" @onclick="CancelQuantity">Anuluj</button>
+        </div>
+        @if (!string.IsNullOrEmpty(quantityError))
+        {
+            <div class="error">@quantityError</div>
+        }
+    </div>
+}
 
 <table>
     <tr>
         <th>Id</th>
         <th>Nazwa</th>
         <th>Cena [zł]</th>
+        <th></th>
     </tr>
     @foreach (var m in Context.Menu)
     {
         <tr>
-            <td>m.DishId</td>
-            <td>m.Name</td>
-            <td>m.Price</td>
+            <td>@m.DishId</td>
+            <td>@m.Name</td>
+            <td>@m.Price</td>
+            <td><button class="button" @onclick="@(() => StartAddToCart(m.DishId))">Dodaj do koszyka</button></td>
         </tr>
     }
 </table>
+
+@code {
+    // Zmienne do obsługi dialogu ilości
+    private bool showQuantityInput = false;
+    private int quantityInput = 1;
+    private int? pendingDishId = null;
+    private string quantityError = "";
+
+    protected override void OnInitialized()
+    {
+        CartService.OnChange += StateHasChanged;
+    }
+
+    void StartAddToCart(int id)
+    {
+        pendingDishId = id;
+        quantityInput = 1;
+        quantityError = "";
+        showQuantityInput = true;
+    }
+
+    void CancelQuantity()
+    {
+        showQuantityInput = false;
+        pendingDishId = null;
+        quantityError = "";
+    }
+
+    async Task ConfirmQuantity()
+    {
+        if (quantityInput < 1)
+        {
+            quantityError = "Proszę wprowadzić prawidłową ilość.";
+            return;
+        }
+        if (pendingDishId.HasValue)
+        {
+            var item = Context.Menu.FirstOrDefault(m => m.DishId == pendingDishId.Value);
+            if (item != null)
+            {
+                await CartService.AddToCart(item, quantityInput);
+            }
+        }
+        showQuantityInput = false;
+        pendingDishId = null;
+        quantityError = "";
+    }
+
+    void GoToCart()
+    {
+        NavigationManager.NavigateTo("/Cart");
+    }
+}
