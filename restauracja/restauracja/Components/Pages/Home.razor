@@ -94,8 +94,5 @@
         quantityError = "";
     }
 
-    void GoToCart()
-    {
-        NavigationManager.NavigateTo("/Cart");
-    }
+    void GoToCart() => NavigationManager.NavigateTo("/cart", true);
 }
