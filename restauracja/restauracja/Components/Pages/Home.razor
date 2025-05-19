@@ -2,13 +2,33 @@
 @inject NavigationManager NavigationManager
 @inject AppDbContext Context
 @inject CartService CartService
+@implements IDisposable
 
 <PageTitle>Menu</PageTitle>
-<div class="cart">
+
+<div class="cart-summary">
+    <h3>Podsumowanie koszyka</h3>
     <button class="button" @onclick="GoToCart">
-        Koszyk (<span>@CartService.Cart.Count</span>) - <span>@CartService.Cart.Sum(item => item.Price) zł</span>
+        Przejdź do koszyka (@CartService.TotalItemsCount) - @CartService.TotalPrice.ToString("C")
     </button>
+    @if (CartService.GetGroupedCartItems().Any())
+    {
+        <ul class="cart-items-preview">
+            @foreach (var group in CartService.GetGroupedCartItems())
+            {
+                <li>
+                    @group.DishItem.Name (x @group.Quantity) - @group.GroupTotalPrice.ToString("C")
+                    <button class="button button-remove-small" @onclick="() => HandleRemoveAllInstances(group.DishItem.DishId)">Usuń wszystkie</button>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>Koszyk jest pusty.</p>
+    }
 </div>
+
 <h1>Menu Restauracji</h1>
 
 @if (showQuantityInput)
@@ -30,21 +50,25 @@
 }
 
 <table>
-    <tr>
-        <th>Id</th>
-        <th>Nazwa</th>
-        <th>Cena [zł]</th>
-        <th></th>
-    </tr>
-    @foreach (var m in Context.Menu)
-    {
+    <thead>
         <tr>
-            <td>@m.DishId</td>
-            <td>@m.Name</td>
-            <td>@m.Price</td>
-            <td><button class="button" @onclick="@(() => StartAddToCart(m.DishId))">Dodaj do koszyka</button></td>
+            <th>Id</th>
+            <th>Nazwa</th>
+            <th>Cena [zł]</th>
+            <th></th>
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach (var m in Context.Menu)
+        {
+            <tr>
+                <td>@m.DishId</td>
+                <td>@m.Name</td>
+                <td>@m.Price.ToString("C")</td>
+                <td><button class="button" @onclick="@(() => StartAddToCart(m.DishId))">Dodaj do koszyka</button></td>
+            </tr>
+        }
+    </tbody>
 </table>
 
 @code {
@@ -56,7 +80,7 @@
 
     protected override void OnInitialized()
     {
-        CartService.OnChange += StateHasChanged;
+        CartService.OnChange += OnCartChanged;
     }
 
     void StartAddToCart(int id)
@@ -78,7 +102,7 @@
     {
         if (quantityInput < 1)
         {
-            quantityError = "Proszę wprowadzić prawidłową ilość.";
+            quantityError = "Proszę wprowadzić prawidłową ilość (minimum 1).";
             return;
         }
         if (pendingDishId.HasValue)
@@ -92,7 +116,24 @@
         showQuantityInput = false;
         pendingDishId = null;
         quantityError = "";
+        // StateHasChanged() zostanie wywołane przez OnCartChanged dzięki CartService.OnChange
     }
 
-    void GoToCart() => NavigationManager.NavigateTo("/cart", true);
+    async Task HandleRemoveAllInstances(int dishId)
+    {
+        await CartService.RemoveAllInstancesOfItem(dishId);
+        // StateHasChanged() zostanie wywołane przez OnCartChanged dzięki CartService.OnChange
+    }
+
+    void GoToCart() => NavigationManager.NavigateTo("/cart");
+
+    private void OnCartChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        CartService.OnChange -= OnCartChanged;
+    }
 }

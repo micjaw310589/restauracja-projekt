@@ -1,70 +1,124 @@
 ﻿@page "/cart"
 @inject NavigationManager NavigationManager
-@inject AppDbContext Context
-@inject IJSRuntime JSRuntime
+@inject CartService CartService
+@implements IDisposable
 
-<PageTitle>Menu</PageTitle>
-<div class="cart">
-    <button class="button" @onclick="GoToCart">Koszyk (<span>@cart.Count</span>) - <span>@cart.Sum(item => item.Price) zł</span></button>
-</div>
-<h1>Menu Restauracji</h1>
+<PageTitle>Koszyk</PageTitle>
 
-<table>
-    <tr>
-        <th>Id</th>
-        <th>Nazwa</th>
-        <th>Cena [zł]</th>
-        <th></th>
-    </tr>
-    @foreach (var m in Context.Menu)
-    {
-        <tr>
-            <td>@m.DishId</td>
-            <td>@m.Name</td>
-            <td>@m.Price</td>
-            <td><button class="button" @onclick="@(() => AddToCart(m.DishId))">Dodaj do koszyka</button></td>
-        </tr>
-    }
-</table>
+<h1>Twój Koszyk</h1>
+
+@if (groupedCartItems == null || !groupedCartItems.Any())
+{
+    <p>Twój koszyk jest pusty.</p>
+    <button class="button" @onclick="ContinueShopping">Kontynuuj zakupy</button>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Ilość</th>
+                <th>Cena jednostkowa</th>
+                <th>Suma</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var group in groupedCartItems)
+            {
+                <tr>
+                    <td>@group.DishItem.Name</td>
+                    <td>@group.Quantity</td>
+                    <td>@group.DishItem.Price.ToString("C")</td>
+                    <td>@group.GroupTotalPrice.ToString("C")</td>
+                    <td>
+                        <button class="button button-remove-small" @onclick="() => HandleRemoveOne(group.DishItem.DishId)" title="Usuń jedną sztukę">-1</button>
+                        <button class="button button-add-small" @onclick="() => HandleAddOne(group.DishItem)" title="Dodaj jedną sztukę">+1</button>
+                        <button class="button button-remove-all-small" @onclick="() => HandleRemoveAllInstances(group.DishItem.DishId)" title="Usuń wszystkie sztuki tego dania">Usuń wszystkie</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" style="text-align:right; font-weight:bold;">Suma całkowita:</td>
+                <td style="font-weight:bold;">@CartService.TotalPrice.ToString("C")</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="cart-actions">
+        <button class="button" @onclick="ContinueShopping">Kontynuuj zakupy</button>
+        <button class="button button-danger" @onclick="HandleClearCart">Wyczyść koszyk</button>
+        <button class="button button-primary" @onclick="ProceedToCheckout">Złóż zamówienie</button>
+    </div>
+}
 
 @code {
-    public List<Models.Dish> cart = new List<Models.Dish>();
+    private IEnumerable<CartItemGroup>? groupedCartItems;
 
-    async Task AddToCart(int id)
+    protected override async Task OnInitializedAsync()
     {
-        var item = Context.Menu.FirstOrDefault(m => m.DishId == id);
-        if (item != null)
-        {
-            var quantityStr = await JSRuntime.InvokeAsync<string>("prompt", "Ile porcji chcesz dodać?", "1");
-            if (int.TryParse(quantityStr, out int qty) && qty > 0)
-            {
-                for (int i = 0; i < qty; i++)
-                {
-                    cart.Add(new Models.Dish { DishId = item.DishId, Name = item.Name, Price = item.Price });
-                }
-                StateHasChanged();
-            }
-            else
-            {
-                await JSRuntime.InvokeVoidAsync("alert", "Proszę wprowadzić prawidłową ilość.");
-            }
-        }
+        CartService.OnChange += OnCartChanged;
+        await LoadCartItems();
     }
 
-    async Task GoToCart()
+    private async Task LoadCartItems()
     {
-        if (cart != null && cart.Count > 0)
-        {
-            bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Czy na pewno chcesz przejść do koszyka?");
-            if (confirmed)
-            {
-                NavigationManager.NavigateTo("/koszyk");
-            }
-        }
-        else
-        {
-            await JSRuntime.InvokeVoidAsync("alert", "Twój koszyk jest pusty.");
-        }
+        // Upewnij się, że koszyk jest załadowany, jeśli CartService.LoadCart() nie jest wywoływane w konstruktorze
+        // lub jeśli chcesz mieć pewność, że dane są świeże przy inicjalizacji komponentu.
+        // W tym przypadku CartService ładuje koszyk w konstruktorze.
+        // await CartService.LoadCart(); // Może być potrzebne w zależności od logiki inicjalizacji CartService
+        groupedCartItems = CartService.GetGroupedCartItems();
+    }
+
+    private async Task HandleRemoveOne(int dishId)
+    {
+        await CartService.RemoveOneItem(dishId);
+        // OnCartChanged wywoła StateHasChanged
+    }
+
+    private async Task HandleAddOne(Dish dish)
+    {
+        // Zakładamy, że `dish` tutaj to obiekt DishItem z grupy, który jest pełnym obiektem Dish
+        await CartService.AddToCart(dish, 1);
+        // OnCartChanged wywoła StateHasChanged
+    }
+
+    private async Task HandleRemoveAllInstances(int dishId)
+    {
+        await CartService.RemoveAllInstancesOfItem(dishId);
+        // OnCartChanged wywoła StateHasChanged
+    }
+
+    private async Task HandleClearCart()
+    {
+        await CartService.ClearCart();
+        // OnCartChanged wywoła StateHasChanged
+    }
+
+    private void OnCartChanged()
+    {
+        groupedCartItems = CartService.GetGroupedCartItems(); // Odśwież lokalną kopię zgrupowanych przedmiotów
+        InvokeAsync(StateHasChanged);
+    }
+
+    void ContinueShopping()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    void ProceedToCheckout()
+    {
+        // Tutaj logika przejścia do finalizacji zamówienia, np.
+        NavigationManager.NavigateTo("/checkout"); // Zakładając, że masz stronę /checkout
+    }
+
+    public void Dispose()
+    {
+        CartService.OnChange -= OnCartChanged;
     }
 }
 
